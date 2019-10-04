@@ -1,0 +1,25 @@
+name: tfd
+channels:
+  - conda-forge
+dependencies:
+  - pyarrow
+  - psutil
+  - ipython
+  - blosc
+  - python-blosc
+  - numba
+  - uproot
+  - pandas
+  - matplotlib
+  - scipy
+  - jupyter
+  - tqdm
+  - cloudpickle
+  - jinja2
+#  - tensorflow
+  - lz4
+  - pip
+  - pip:
+      - coffea
+      - tensorflow==2.0.0-rc1
+      - tensorflow_probability==0.8.0rc0
