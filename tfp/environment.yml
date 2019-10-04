@@ -19,6 +19,7 @@ dependencies:
 #  - tensorflow
   - lz4
   - pip
+  - pythia8
   - pip:
       - coffea
       - tensorflow==2.0.0
