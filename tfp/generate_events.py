@@ -46,6 +46,7 @@ def run(nevents, mass, width):
     pythia.readString('Beams:eCM = 14000.')
     pythia.readString('WeakSingleBoson:ffbar2W = on')
     pythia.readString('24:m0 = {}'.format(mass))
+    pythia.readString('24:doForceWidth = on')
     pythia.readString('24:mWidth = {}'.format(width))
     pythia.readString('24:onMode = off')
     pythia.readString('24:onIfMatch = 1 2')
