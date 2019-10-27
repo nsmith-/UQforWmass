@@ -20,7 +20,11 @@ dependencies:
   - lz4
   - pip
   - pythia8
+  - cudatoolkit==10.0.130
+  - cupti
+  - cudnn
   - pip:
       - coffea
       - tensorflow==2.0.0
       - tensorflow_probability==0.8.0
+      - tensorflow-gpu
