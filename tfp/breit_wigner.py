@@ -132,6 +132,12 @@ class BreitWigner(distribution.Distribution):
             zip(('mass', 'width', 'smin', 'smax'),
                 ([tf.convert_to_tensor(sample_shape, dtype=tf.int32)] * 4)))
 
+    def _event_shape_tensor(self):
+        return tf.constant([], dtype=tf.int32)
+
+    def _event_shape(self):
+        return tf.TensorShape([])
+
     @classmethod
     def _params_event_ndims(cls):
         return dict(mass=0, width=0)
@@ -173,7 +179,7 @@ class BreitWigner(distribution.Distribution):
 
     def _batch_shape_tensor(self, mass=None, width=None):
         return prefer_static.broadcast_shape(
-            prefer_static.shape(self.mass2 if mass is None else mass),
+            prefer_static.shape(self.mass if mass is None else mass),
             prefer_static.shape(self.width if width is None else width))
 
     def _batch_shape(self):
