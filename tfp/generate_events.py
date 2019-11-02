@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 """ Generate events using pythia8. """
-
 import argparse
 import numpy as np
+import awkward as ak
+from uproot_methods import TLorentzVector
 import tqdm
-
 import pythia8
+
 
 def parse_input():
     """ Parse input arguments. """
@@ -39,11 +40,15 @@ def main():
     widths = np.linspace(args.width_min, args.width_max,
                          np.ceil((args.width_max - args.width_min) / args.width_step)+1)
 
-    with tqdm.tqdm(unit='event', total=masses.size * widths.size * args.nevents, desc='Generating') as pbar:
-        for mass in masses:
-            for width in widths:
-                run(args.nevents, mass, width)
-                pbar.update(args.nevents)
+    def generator():
+        with tqdm.tqdm(unit='event', total=masses.size * widths.size * args.nevents, desc='Generating') as pbar:
+            for mass in masses:
+                for width in widths:
+                    yield from run(args.nevents, mass, width)
+                    pbar.update(args.nevents)
+
+    events = ak.fromiter(generator())
+    ak.save('events.awkd', events, mode='w')
 
 
 def run(nevents, mass, width, debug=False):
@@ -76,19 +81,29 @@ def run(nevents, mass, width, debug=False):
     pythia.readString('Check:event = off')
     pythia.init()
 
-    filename = 'events_{:.1f}_{:.1f}.txt'.format(mass, width)
-    with open(filename, 'w') as outfile:
-        for _ in range(nevents):
-            if not pythia.next():
-                continue
+    for iEvent in range(nevents):
+        if not pythia.next():
+            continue
 
-            for particle in pythia.event:
-                if particle.isFinal():
-                    outfile.write(
-                        '[{: .8e}, {: .8e}, {: .8e}, {: .8e}] '.format(
-                            particle.px(), particle.py(), particle.pz(), particle.e()))
+        particles = []
+        for particle in pythia.event:
+            particles.append({
+                'status': particle.status(),
+                'isFinal': particle.isFinal(),
+                'px': particle.px(),
+                'py': particle.py(),
+                'pz': particle.pz(),
+                'e': particle.e(),
+                'id': particle.id(),
+            })
 
-            outfile.write('\n')
+        event = {
+            'eventNumber': iEvent,
+            'wMass': mass,
+            'wWidth': width,
+            'particles': particles,
+        }
+        yield event
 
     if debug:
         pythia.stat()
